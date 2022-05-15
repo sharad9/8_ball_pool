@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html>
+    <head><link href="https://fonts.googleapis.com/css?family=Arvo&display=swap" rel="stylesheet">
+        <title>8 Ball PooL </title>
+      
+    </head>
+    <body>
+
+
+    	<canvas id = "screen" ></canvas>
+	
+        	
+        
+        
+       	
+     
+      <div class="cols">
+      	<div class="rows">New Start!
+      		
+      	</div>
+      	<div class="rows">
+      		<hr>
+      		<b class="score">Last Score:0</b>
+      		<hr>
+      	</div>
+      	<button onclick="setTimeout(function() { start(); }, 1000);" class="start">Play !</button>
+      </div>
+      <script>
+		
+	
+var canvas,ctx;
+var h = null;
+var w = null;
+var holes = [];
+var balls = [];
+var stick;
+var touch  = {};
+const friction = 0.030;
+var control_show = true;
+var sliderImg;
+var boardImg;
+var stickImg ;
+var score = 0;
+var alertBox;
+var gameOver = true;
+const timer=300;
+var time = timer;
+var balls_bg=[[15,0,14,0,13,0,12,0,11],
+              [0,10,0,9,0,8,0,7,0],
+              [0,0,6,0,5,0,4,0,0],
+              [0,0,0,3,0,2,0,0,0],
+              [0,0,0,0,1,0,0,0,0]];
+var colors =[
+	['#FFC107', 1],
+	['#FF6F69', 2],
+	['#00C3DF', 3],
+	['#03A9F4', 4],
+	['#F83600', 5],
+	['#FFC107', 6]
+];
+
+var ballsImages=[ ["https://www.dropbox.com/s/qf8i9myxaxhgx2d/Ball1.png?raw=1",
+				"https://www.dropbox.com/s/adapjrypmmhq0ar/Ball2.png?raw=1",
+				"https://www.dropbox.com/s/p3uqve24t0g739k/Ball3.png?raw=1",
+				"https://www.dropbox.com/s/tlzgabv1cfojq4r/Ball4.png?raw=1",
+				"https://www.dropbox.com/s/j9kqozt5qqemm71/Ball5.png?raw=1",
+				"https://www.dropbox.com/s/62f4yo89avi4a6l/Ball6.png?raw=1",
+				"https://www.dropbox.com/s/7wxfqm7hdhnr4ok/Ball7.png?raw=1",
+				"https://www.dropbox.com/s/x5x6juflt7mjynt/Ball8.png?raw=1",
+				"https://www.dropbox.com/s/m7du1wfsunzcm0v/Ball9.png?raw=1",
+				"https://www.dropbox.com/s/f0icr8kk7npi0dd/Ball10.png?raw=1",
+				"https://www.dropbox.com/s/uz9ynzfmv7pdn15/Ball11.png?raw=1",
+				"https://www.dropbox.com/s/f6ec5z7d9au242s/Ball12.png?raw=1",
+                "https://www.dropbox.com/s/ddb4u170buavo42/Ball16.png?raw=1",
+				"https://www.dropbox.com/s/0lp3680ixyp2813/Ball13.png?raw=1",
+				"https://www.dropbox.com/s/kru3z62shh5bvjy/Ball14.png?raw=1",
+				"https://www.dropbox.com/s/8pvwb4xo2iqrvks/Ball15.png?raw=1",
+                ],
+                
+
+        
+         
+				   ["https://www.dropbox.com/s/h1zfbtxmkp0c5gm/ball_1.png?raw=1",
+					"https://www.dropbox.com/s/o06e9c0mvbq5xy0/ball_2.png?raw=1",
+					"https://www.dropbox.com/s/gzpajkl229wti4s/ball_3.png?raw=1",
+					"https://www.dropbox.com/s/arfr1rzvnv1lp3j/ball_4.png?raw=1",
+					"https://www.dropbox.com/s/9l48x8xqsukv205/ball_5.png?raw=1",
+					"https://www.dropbox.com/s/es3s4tw1q06s24l/ball_6.png?raw=1",
+					"https://www.dropbox.com/s/399q95mvi2db7a5/ball_7.png?raw=1",
+					"https://www.dropbox.com/s/rwtk8q4v7xf4nge/ball_8.png?raw=1",
+					"https://www.dropbox.com/s/ma7srmai3gimq1m/ball_9.png?raw=1",
+					"https://www.dropbox.com/s/7b16id1ei5acflm/ball_10.png?raw=1",
+					"https://www.dropbox.com/s/7wnvye9jh2w2q4e/ball_11.png?raw=1",
+					"https://www.dropbox.com/s/tirrh597x303i62/ball_12.png?raw=1",
+                    "https://www.dropbox.com/s/6eu9gr2jn87fopb/ball_13.png?raw=1",
+					"https://www.dropbox.com/s/py5wue0a0a6pnqc/ball_14.png?raw=1",
+					"https://www.dropbox.com/s/3hp9rkgqamooypu/ball_15.png?raw=1",
+					
+                  ],
+                 
+                 /*	
+                 ["https://www.dropbox.com/s/v7qdd6h7atw5qlb/1Ball.png?raw=1",
+						"https://www.dropbox.com/s/smyfmncahb2b5yt/2Ball.png?raw=1",
+						"https://www.dropbox.com/s/zf1y9db8o8nu2xh/3Ball.png?raw=1",
+						"https://www.dropbox.com/s/cphnv3iin4sm24o/4Ball.png?raw=1",
+						"https://www.dropbox.com/s/5lffqnu2ye9yw61/5Ball.png?raw=1",
+						"https://www.dropbox.com/s/yu1oppuja7bdabp/6Ball.png?raw=1",
+						"https://www.dropbox.com/s/fpdfm4bgeurir20/7Ball.png?raw=1",
+						"https://www.dropbox.com/s/ve834orloka6ni5/8Ball.png?raw=1",
+						"https://www.dropbox.com/s/yjwz4k320ueg3aw/9Ball.png?raw=1",
+						"https://www.dropbox.com/s/gigu7fkg71jcj7b/10Ball.png?raw=1",
+						"https://www.dropbox.com/s/h9601ihdwgjv8e2/11Ball.png?raw=1",
+						"https://www.dropbox.com/s/fc0evy8drniqrkc/12Ball.png?raw=1",
+						"https://www.dropbox.com/s/z4lc1oowgq7lc1l/13Ball.png?raw=1",
+						"https://www.dropbox.com/s/p8ybzdp0624aui0/14Ball.png?raw=1",
+						"https://www.dropbox.com/s/po76tir0gf4d3ro/15Ball.png?raw=1",
+					]
+		
+                 */
+                 ];
+
+var level = 0;
+var ballsImg = [[],[]];
+var strike = new Audio("https://www.dropbox.com/s/p5329oclb4qxu1c/ball_shot.mp3?raw=1");
+var holeSound = new Audio("https://www.dropbox.com/s/wvl4n16fj8k8qw4/Hole.wav?raw=1"); 
+
+window.onload = load;
+var r = innerWidth / 10;
+loadBallsImages =()=>{
+	for (var i = 0; i < ballsImages[0].length; i++) {
+		ballsImg[0][i] =  new Image();
+		ballsImg[0][i].src = ballsImages[0][i];
+
+	}
+  for (var i = 0; i < ballsImages[1].length; i++) {
+		ballsImg[1][i] =  new Image();
+		ballsImg[1][i].src = ballsImages[1][i];
+
+	}
+    
+}        
+function load(){
+  	
+
+  
+	canvas = document.getElementsByTagName("canvas")[0];
+	h = canvas.height = window.innerHeight;
+	w = canvas.width = window.innerWidth;
+	ctx = canvas.getContext("2d");
+	alertBox = document.getElementsByClassName("cols")[0];
+	score_info = document.getElementsByClassName("score")[0];
+	sliderImg = new Image();
+	boardImg = new Image();
+	stickImg =  new Image();
+  
+	
+	//stickImg.src = "https://www.dropbox.com/s/g4z29s6xxny92d0/spr_stick.png?raw=1";
+	sliderImg.src = "https://www.dropbox.com/s/k1g7tzet6y8jk1p/ball_0.png?raw=1";
+	boardImg.src = "https://www.dropbox.com/s/av1czqhf58wl2de/fitboard.jpg?raw=1";
+	
+  	loadBallsImages();
+  
+	holes.push(new Hole(r/2, r / 2, r/2));
+	holes.push(new Hole(w-r/2, r / 2, r/2));
+	holes.push(new Hole(r/2, h - r / 2, r/2));
+	holes.push(new Hole(w-r/2, h - r / 2, r/2));
+	holes.push(new Hole(r/2, h / 2 , r/2));
+	holes.push(new Hole(w-r/2, h / 2 , r/2));
+
+	for (let i in balls_bg) {
+		for (let j in balls_bg[i]) {
+			if (balls_bg[i][j] != 0) {
+				 
+              balls.push(new Ball(r/ 2.6* j+ w/ 2- r* 2/ 1.3,r/ 1.6* i+ h/ 2- r* 6/ 1.2,r/ 3,0,0,colors[i][0], balls_bg[i][j]));
+              
+			}
+		}
+	}
+	slider = new Ball(w / 2, h*3/4, r / 3, 0, 0, "white");
+	//stick = new Stick();
+	alertBox.classList.add("show");
+	score_info.innerText = "Score : " + score + " [" + time +"]";
+	setInterval(function(){
+      	if(time>0 && !gameOver){
+          time-=1;
+        }
+		
+		},1000);
+	
+
+	window.requestAnimationFrame(update);
+}
+
+
+function update() {
+
+	ctx.clearRect(0, 0, w, h);
+	ctx.drawImage(boardImg,-10,-10,w+20,h+20);
+	score_info.innerText = "Score : " + score + " [" + time +"]";
+		
+	
+	if (! gameOver){
+
+		showScores();
+		holes.forEach(function(item , index, arr){
+      arr[index].show();
+	});
+		balls.forEach (function(item , index, arr){
+		arr[index].show();
+
+	});
+		if (control_show){
+
+    	  	touch.x = slider.x;
+		  	touch.y = slider.y;
+			stick.show();
+			
+		}
+
+		checkShot();
+		slider.show();
+
+		if (control_show){
+
+			showControl();
+		}
+
+
+	}
+	
+	
+	if(balls.length == 0 || time == 0){
+		
+		gameOver = true;
+      	
+		alertBox.classList.add("show");
+		
+			
+	};
+	
+
+	window.requestAnimationFrame(update);
+	
+}
+
+window.addEventListener("touchstart", function (e) {
+
+	if (!gameOver) {
+	
+		if(control_show){
+			touch.x2 = e.touches[0].pageX;
+			touch.y2 = e.touches[0].pageY;
+			touch.ang = Ang(touch.x2, touch.y2, stick.target.x, stick.target.y);
+			stick.angle = touch.ang;
+			stick.adjust();
+		}
+	}		
+			
+		
+	
+});
+window.addEventListener("touchmove", function (e) {
+	if (!gameOver) {
+		if(control_show){
+			touch.x2 = e.touches[0].pageX;
+			touch.y2 = e.touches[0].pageY;
+			touch.ang = Ang(touch.x2, touch.y2, stick.target.x, stick.target.y);
+			stick.angle = touch.ang;
+          	
+			stick.adjust();
+			
+			}
+	}		
+			
+		
+	
+});
+
+window.addEventListener("touchend", function (e) {
+	if (!gameOver) {
+			if(control_show){
+				slider.launch(touch.dist);
+                
+				touch = {};
+				control_show = false;
+			}
+			
+	}		
+	
+});
+         
+         
+function reset() {
+
+var count =0;
+
+  for (var i in balls) {
+
+    if(balls [i].vx!=0 || balls[i].vy!=0){
+       break;
+    }else{count++;}
+
+    }
+
+    if(count ==balls.length && slider.vx == 0 && slider.vy == 0){
+
+            let x = slider.x;
+
+            let y =slider.y;
+
+            resetBoard(x,y);
+
+    }
+
+     
+
+   window.requestAnimationFrame(reset);
+
+};
+
+function resetBoard (x, y) {
+	slider = new Ball(x, y, r / 3, 0, 0, "white",8);
+	
+	stick.target.x = slider.x;
+	stick.target.y = slider.y;
+	stick.target.xrad = Math.cos(stick.angle)*14 + slider.x;
+	stick.target.yrad = Math.sin(stick.angle)*14 + slider.y;
+	stick.len = 0;
+	stick.adjust();
+ 	control_show = true;
+}
+
+function Stick() {
+	this.angle = 0;
+	this.angle2 =0;
+	this.target = {};
+	this.len = 0;
+	this.target.x = slider.x;
+	this.target.y = slider.y;
+	this.head = {
+		x: Math.cos(this.angle) * this.len,
+		y: Math.sin(this.angle) * this.len
+	}
+	
+	
+
+
+
+
+	this.show = function () {
+
+		
+
+
+
+
+		ctx.save();
+		//ctx.setLineDash([4, 2])
+		ctx.beginPath();
+		ctx.strokeStyle = "white";
+		
+		ctx.lineWidth = 2;
+        ctx.moveTo(this.head.x, this.head.y);
+		ctx.lineTo(this.target.xrad, this.target.yrad);
+		ctx.stroke();
+		ctx.closePath();
+		ctx.beginPath();
+		ctx.strokeStyle = "black";
+		ctx.lineWidth = 4;
+		
+		ctx.arc(this.target.x, this.target.y, r / 1.5, 0, 2 * Math.PI);
+		ctx.stroke();
+		ctx.closePath();
+		ctx.restore();
+
+	};
+	this.adjust = function () {
+		touch.dist = fDist(touch.x2 || touch.x + 1, touch.y2 || touch.y + 1, touch.x || touch.x2 + 1, touch.y || touch.y2 + 1);
+		
+			if (touch.dist > 300) {
+		touch.dist = 300;
+	}
+
+	
+
+	
+	
+
+		this.target.xrad = Math.cos(this.angle) * -r / 2 + this.target.x;
+		this.target.yrad = Math.sin(this.angle) * -r / 2 + this.target.y;
+		this.head.x = Math.cos(this.angle) * -touch.dist * 2.5 + this.target.x;
+
+		this.head.y = Math.sin(this.angle) * -touch.dist * 2.5 + this.target.y;
+
+	};
+};
+
+function Hole(x, y, r, c) {
+	this.x = x;
+	this.y = y;
+	this.r = r;
+	this.c = c;
+	this.show = function () {
+		ctx.save();
+		ctx.beginPath();
+		ctx.fillStyle = this.c;
+		ctx.shadowBlur = 10;
+		ctx.shadowColor = "black";
+		ctx.arc(this.x, this.y, this.r , 2*Math.PI, false);
+		ctx.fill();
+		ctx.closePath();
+		ctx.restore();
+	}
+}
+
+function Ball(x, y, r, a, v, c, p) {
+	this.x = x;
+	this.y = y;
+	this.a = a || 0;
+	this.r = r;
+	this.v = v;
+	this.color = c;
+	this.friction = friction;
+	this.points = p;
+	this.vx = Math.cos(this.a) * this.v;
+	this.vy = Math.sin(this.a) * this.v;
+	this.show = function () {
+		ctx.save();
+		ctx.beginPath();
+		ctx.lineWidth = 2;
+		ctx.shadowBlur = 3;
+		ctx.shadowColor = "black";
+		ctx.fillStyle = this.color;
+		if(this != slider){
+            ctx.drawImage(ballsImg[level%ballsImages.length][this.points-1], this.x-this.r, this.y-this.r, this.r * 2, this.r * 2);	
+          
+			
+		}else{
+			ctx.drawImage(sliderImg, this.x-this.r, this.y-this.r, this.r * 2, this.r * 2);
+		//ctx.arc(this.x, this.y, this.r, 0, 2 * Math.PI);
+		//ctx.fill();
+		}
+      	//ctx.font = 'bold 10px Helvetica';
+
+		//ctx.textAlign  = 'center';
+		//ctx.textBaseline = 'middle';
+		
+		//ctx.closePath();
+        //ctx.fillStyle = 'black';
+       // ctx.fillText(this.points, this.x, this.y);
+		ctx.restore();
+		this.update();
+		this.checkCollisions();
+		this.edeges()
+	};
+	this.update = function () {
+		this.x += this.vx;
+		this.y += this.vy;
+		this.vx *= (1 - this.friction);
+		this.vy *= (1 - this.friction);
+		this.vx = Math.abs(this.vx) < 0.1 ? 0 : this.vx;
+		this.vy = Math.abs(this.vy) < 0.1 ? 0 : this.vy;
+	};
+	this.checkCollisions = function () {
+		for (var i in balls) {
+			if (balls[i] == this) continue;
+			var dist =
+				Dist(this.x, this.y, balls[i].x || slider.x, balls[i].y || slider.y);
+				//adjusting collision due to ball image size
+			if (dist < (this.r + balls[i].r )) {
+              	//ballHitSound.play();
+				this.applyforce(balls[i]);
+			};
+		};
+	};
+	this.applyforce = function (b) {
+		var vx = this.vx - b.vx;
+		var vy = this.vy - b.vy;
+		var x = b.x - this.x;
+		var y = b.y - this.y;
+		if (vx * x + vy * y >= 0) {
+			var ang = -Math.atan2(y, x);
+			var u1 = rotate(this.vx, this.vy, ang);
+			var u2 = rotate(b.vx, b.vy, ang);
+			var v1 = {
+				x: u2.x,
+				y: u1.y
+			};
+			var v2 = {
+				x: u1.x,
+				y: u2.y
+			};
+			var f1 = rotate(v1.x, v1.y, -ang);
+			var f2 = rotate(v2.x, v2.y, -ang);
+			this.vx = f1.x;
+			this.vy = f1.y;
+			b.vx = f2.x;
+			b.vy = f2.y;
+		};
+	}
+	this.launch = function (d) {
+		this.v = d / 6;
+		this.a = stick.angle + Math.PI;
+		this.vx = Math.cos(this.a) * this.v;
+		this.vy = Math.sin(this.a) * this.v;
+        strike.play();
+		stick.adjust();
+		reset();
+	};
+	this.edeges = function () {
+      let r = this.r;
+		if (this.x < 70) {
+			this.x = 71;
+			this.vx *= -1;
+		} else if (this.x > w - r/ 2 - 56) {
+			this.x = w - r / 2 - 54;
+			this.vx *= -1;
+		} else if (this.y < 70) {
+			this.y = 71;
+			this.vy *= -1;
+		} else if (this.y > h - r / 2 - 56) {
+			this.y = h - r / 2 - 54;
+			this.vy *= -1;
+		}
+
+	}
+}
+function checkShot() {
+
+	for (let j in holes) {
+			for (let i in balls) {
+				if (Dist(balls[i].x, balls[i].y, holes[j].x, holes[j].y) < holes[j].r) {
+                  	holeSound.play();
+					score += balls[i].points;
+                    time = time + balls[i].points;
+					balls.splice(i, 1);
+                    holeSound.play();
+                  	
+				} else if (Dist(slider.x, slider.y, holes[j].x, holes[j].y) < holes[j].r) {
+                  	score -= 1;
+                  	holeSound.play();
+					slider = new Ball(w / 2, h*3/4, r / 3, 0, 0, "white");
+					
+				}
+			}
+		}
+}
+
+function showControl() {
+if (touch.dist > 300) {
+		touch.dist = 300;
+	}
+	ctx.save();
+	ctx.beginPath();
+	//ctx.setLineDash([4, 2])
+	ctx.lineWidth = 1;
+	ctx.lineCap = "round";
+	ctx.strokeStyle = "black";
+	ctx.arc(touch.x2 || touch.x, touch.y2 || touch.y, r * 1.2, 0, 2 * Math.PI);
+	ctx.stroke()
+	ctx.beginPath();
+	ctx.arc(touch.x2 || touch.x, touch.y2 || touch.y, r * 0.9, 0, 2 * Math.PI);
+	ctx.stroke();
+	ctx.closePath();
+	ctx.beginPath();
+	ctx.lineWidth = 10;
+	//ctx.setLineDash([4, 2])
+	ctx.strokeStyle = "black";
+	ctx.moveTo(touch.x, touch.y);
+	ctx.lineTo(touch.x2, touch.y2);
+	ctx.stroke();
+	ctx.fill();
+	ctx.closePath();
+	ctx.beginPath();
+	ctx.lineWidth = 1;
+	ctx.setLineDash([8, 2])
+	ctx.strokeStyle = "black";
+	ctx.arc(touch.x, touch.y, touch.dist / 2 * 2, 0, 2 * Math.PI);
+	ctx.stroke()
+	ctx.beginPath();
+	ctx.arc(touch.x, touch.y, touch.dist / 2 * 1.5, 0, 2 * Math.PI);
+	ctx.stroke()
+	ctx.closePath()
+	ctx.restore();
+
+};
+
+function showScores () {
+	ctx.save();
+	ctx.fillStyle = "white";
+	ctx.font = "bold " + r * 1.1 + "px Arvo";
+	ctx.fillText("Score : " + score + " ["+ time +"]", 20, h - 90);
+	ctx.beginPath();
+	ctx.strokeStyle = "white";
+	ctx.lineWidth = 1;
+	ctx.moveTo(0, h*3/4);
+	ctx.lineTo(w, h*3/4);
+	ctx.stroke()
+	ctx.closePath();
+	ctx.beginPath()
+	ctx.arc(w / 2, h*3/4, r, Math.PI * 2, false );
+	ctx.closePath();
+	ctx.stroke();
+	ctx.closePath();
+	ctx.restore();
+
+}
+
+function rotate(x, y, angle) {
+	var length = Math.sqrt(x * x + y * y);
+	angle += Math.atan2(y, x);
+	return {
+		x: length * Math.cos(angle),
+		y: length * Math.sin(angle)
+	};
+
+};
+
+function fDist(a, b, c, d) {
+	return Math.hypot(a - c, b - d);
+};
+
+function Ang(a, b, c, d) {
+	return Math.atan2(b - d, a - c);
+};
+
+function Dist(a, b, c, d) {
+	var x = b - d;
+	var y = a - c;
+	return Math.sqrt(x * x + y * y);
+};
+         
+         
+
+  
+    
+
+
+function start() {
+	alertBox.classList.remove("show");
+	touch={};
+	gameOver = false;
+	balls = [];
+	for (let i in balls_bg) {
+		for (let j in balls_bg[i]) {
+			if (balls_bg[i][j] != 0) {
+				 
+              	  balls.push(new Ball(r/ 2.6* j+ w/ 2- r* 2/ 1.3,r/ 1.6* i+ h/ 2- r* 6/ 1.2,r/ 3,0,0,colors[i][0], balls_bg[i][j]));
+			}
+		}
+	}
+	level++;
+  	loadBallsImages();
+	slider = new Ball(w / 2, h*3/4, r / 3, 0, 0, "white");
+	stick = new Stick();
+  	score = 0;
+  	time = timer;
+	
+	
+
+}
+        
+       </script>
+      
+      <style>
+        
+html, body {
+ background-color: green;
+}
+
+canvas{
+    position:absolute;
+   
+     
+    
+}
+
+.cols{
+	position: absolute;
+	color: green;
+	text-align: center;
+	width: 70%;
+	height: auto;
+	background-color: white;
+    border-radius: 12px;
+	padding: 5% 5%;
+	line-height: 2;
+	left: 50%;
+	top: 60%;
+	transform: translate(-50%, -50%);
+	box-shadow: 0px 8px 16px 4px #0000005c;
+	visibility: hidden;
+	opacity: 0;
+
+}
+
+.rows{
+	font-family: Arvo;
+	font-weight: bolder;
+}
+.restart{
+	width: 50%;
+	height: 25%;
+	border: none;
+	box-shadow: 0px 4px 8px 1px #0000005c;
+	background-color: #03A9F4;
+	padding: 5%;
+
+}
+
+button:focus{
+	outline: none;
+}
+@keyframes pop{
+	from{
+		opacity: 0;
+		visibility: hidden;
+		transform: scale(0.2,0.2);
+
+	}to{
+		opacity: 1;
+		visibility: visible;
+		transform: translate(1,1);
+	}
+}
+
+.show{
+	animation: 1s pop forwards;
+}
+
+
+
+
+  #navbar-iframe-container{
+   display: none;
+}
+
+      </style>
+       
+    </body>
+</html>
